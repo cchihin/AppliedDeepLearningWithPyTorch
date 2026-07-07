@@ -202,3 +202,14 @@ if __name__ == "__main__":
     ax.grid()
 
     fig.savefig('losses.pdf', bbox_inches='tight')
+
+
+    # Post-processing
+    training_err = 1 - running_acc/iterations
+    validation_err = 1 - acc
+
+    bayes_err = 0.15
+    bias = training_err - bayes_err
+    variance = validation_err - training_err
+
+    print(f'bias: {bias}, variance: {variance}')
