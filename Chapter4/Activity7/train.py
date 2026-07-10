@@ -38,27 +38,20 @@ class ConvNet(nn.Module):
         # 2nd Pooling layer
         # Input: (16, 16, 20)
         # Convolution layer: 2 widths, 2 strides 
-        # Output: (16, 16, 20)
+        # Output: (8, 8, 20)
         self.pool2 = nn.MaxPool2d(2,2)
 
         # 3rd Convolution layer
-        # Input: (16, 16, 20)
+        # Input: (8, 8, 20)
         # Convolution layer: 40 filters, 3 widths, 1 stride and pad
-        # Output: (16, 16, 40)
+        # Output: (8, 8, 40)
         self.conv3 = nn.Conv2d(20, 40, 3, 1, 1)
 
         # 3rd Pooling layer
-        # Input: (16, 16, 40)
+        # Input: (8, 8, 40)
         # Convolution layer: 2 widths, 2 strides 
-        # Output: (16, 16, 40)
-        self.pool3 = nn.MaxPool2d(2,2)
-
-        # 2nd Pooling layer
-        # Input: (16, 16, 40)
-        # Convolution layer: 2 widths, 2 strides 
-        # Output: (16, 16, 40)
-        # nn.MaxPool2d(width, stride)    
-        self.pool2 = nn.MaxPool2d(2,2)
+        # Output: (4, 4, 40)
+        self.pool3 = nn.MaxPool2d(2, 2)
 
         self.linear1 = nn.Linear(4 * 4 * 40, 100)
 
@@ -75,7 +68,7 @@ class ConvNet(nn.Module):
         x = self.pool3(F.relu(self.conv3(x)))
 
         # Flattening
-        x = x.view(-1, 40 * 4 * 4)
+        x = x.view(-1, 40 * 4 * 4) # dim0 is always batch size, so let pytorch infer
         x = self.dropout(x)
         x = F.relu(self.linear1(x))
         x = self.dropout(x)
