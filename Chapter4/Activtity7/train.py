@@ -107,7 +107,7 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # Loading dataset downloaded from Hugging Face (uoft-cs/cifar10)
-    batch_size = 10000
+    batch_size = 100
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
@@ -136,12 +136,12 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_data,
                                batch_size=batch_size,
                                sampler=train_sampler,
-                              num_workers = 4)
+                              num_workers = 16)
 
     valid_loader = DataLoader(train_data,
                                batch_size=batch_size,
                                sampler=valid_sampler,
-                              num_workers = 4)
+                              num_workers = 16)
 
     test_loader = DataLoader(test_data,
                               batch_size=batch_size)
@@ -149,6 +149,10 @@ if __name__ == "__main__":
 
     # Initialising networks
     model = ConvNet()
+    # Pushing to GPU
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
     optimiser = torch.optim.Adam(model.parameters(), lr=0.001)
     criterion = nn.NLLLoss()
 
@@ -163,8 +167,10 @@ if __name__ == "__main__":
         running_acc  = 0
         itx = 0
 
+        model.train()
         for batch, target in train_loader:
 
+            batch, target = batch.to(device), target.to(device)
             batch_start = time.time()
             y_pred = model(batch)
             criteria = criterion(y_pred, target)
@@ -176,8 +182,8 @@ if __name__ == "__main__":
 
             prob = torch.exp(y_pred)
             top_p, top_class = prob.topk(1, dim=1)
-            running_acc += accuracy_score(target, top_class)
-            
+            running_acc += accuracy_score(target.cpu(), top_class.cpu().squeeze())
+
             itx += 1
             # print(f'Training iteration: {itx}, that took: {time.time()-batch_start}')
         
@@ -187,9 +193,12 @@ if __name__ == "__main__":
         running_loss = 0
         running_acc  = 0
         itx = 0
+
+        model.eval()
         with torch.no_grad():
             
             for batch, target in valid_loader:
+                batch, target = batch.to(device), target.to(device)
                 y_pred_valid = model(batch)
                 criteria = criterion(y_pred_valid, target)
 
@@ -197,7 +206,7 @@ if __name__ == "__main__":
 
                 prob = torch.exp(y_pred_valid)
                 top_p, top_class = prob.topk(1, dim=1)
-                running_acc += accuracy_score(target, top_class)
+                running_acc += accuracy_score(target.cpu(), top_class.cpu().squeeze())
                 
                 itx += 1
 

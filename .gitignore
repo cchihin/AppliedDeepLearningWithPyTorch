@@ -3,4 +3,5 @@ pytorch/*
 */*/*swp
 Chapter4/Activtity7/data
 Chapter2/Activity2/YearPredictionMSD.txt
+Chapter4/Activtity7/checkpoint.pth
 
