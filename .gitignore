@@ -1,7 +1,7 @@
 pytorch/*
 */*/__pycache__/
 */*/*swp
-Chapter4/Activtity7/data
+Chapter4/Activity7/data
 Chapter2/Activity2/YearPredictionMSD.txt
-Chapter4/Activtity7/checkpoint.pth
+Chapter4/Activity7/checkpoint.pth
 .pat
