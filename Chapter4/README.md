@@ -38,5 +38,8 @@
         training dataset, failing to generalise to a more diverse dataset such as
         the validation dataset.
 
+4. Data augmentation augments the dataset by applying flips and noise, generalising the 
+model.
+
 # What I am unsure of
 1. How to select the number of filter widths, pooling and channels?
