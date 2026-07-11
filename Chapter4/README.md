@@ -41,5 +41,12 @@
 4. Data augmentation augments the dataset by applying flips and noise, generalising the 
 model.
 
+5. Batch normalisation normalises the output from each layer, and was reported to have
+lower losses and higher accuracy in the CIFAR10 dataset.
+
 # What I am unsure of
-1. How to select the number of filter widths, pooling and channels?
+1. How to select the number of filter widths, pooling and channels of CNNs?
+
+2. What do the arguments in BatchNorm refer to?
+
+3. What do the arguments in the Data Augmentation mean?
