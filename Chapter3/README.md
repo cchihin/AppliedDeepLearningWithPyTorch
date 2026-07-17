@@ -49,3 +49,4 @@ logits of `(N, num_classes)` with takes into account the target of `(N,)` throug
 `nn.CrossEntropyLoss()`
 3. They are mathematically equivalent because `CrossEntropyLoss = -log(softmax(z))`
 while `NLLLoss = -log p_c`. 
+4. We are assuming Bayes error = 0.15 as the theorectical irreducible error.

@@ -50,3 +50,20 @@ lower losses and higher accuracy in the CIFAR10 dataset.
 2. What do the arguments in BatchNorm refer to?
 
 3. What do the arguments in the Data Augmentation mean?
+
+
+# Follow-up
+1. Filter width of 3x3 is the default choice since it gives the same receptive field
+as 5x5 shown in the VGG dataset.
+
+2. Intuition is to increase channels as spatial resolution decreases. Channels are
+engineered to detect features so in the earlier layers, the features are larger and more
+sparse and as the spatial resolution decreases, the combination of features increase.
+
+3. Pooling 2x2 halves the spatial resolution which is the standard.
+
+4. BatchNorm referes to normalisation over features (e.g. channels) with learning 
+scaling and shifting parameters via a user-defined affine value.
+
+5. Data augmentation makes the model more invariant under flips and rotations.
+
