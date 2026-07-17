@@ -13,7 +13,7 @@ from datasets import load_from_disk
 
 class ConvNet(nn.Module):
 
-    def __init__(self):
+    def __init__(self, dropout_prob):
         super(ConvNet, self).__init__()
         # 1st Convolution layer
         # Input: (32, 32, 3)
@@ -57,7 +57,7 @@ class ConvNet(nn.Module):
 
         self.linear2 = nn.Linear(100, 10)
 
-        self.dropout = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(dropout_prob)
 
     def forward(self, x):
 
@@ -141,7 +141,8 @@ if __name__ == "__main__":
 
 
     # Initialising networks
-    model = ConvNet()
+    dropout = 0.2
+    model = ConvNet(dropout)
     # Pushing to GPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
@@ -181,7 +182,7 @@ if __name__ == "__main__":
             # print(f'Training iteration: {itx}, that took: {time.time()-batch_start}')
         
         train_losses.append(running_loss/itx)
-        train_accs.append(running_acc/itx)
+        train_accs.append(running_acc/itx * 100)
 
         running_loss = 0
         running_acc  = 0
@@ -204,10 +205,10 @@ if __name__ == "__main__":
                 itx += 1
 
         valid_losses.append(running_loss/itx)
-        valid_accs.append(running_acc/itx)
+        valid_accs.append(running_acc/itx * 100)
 
-        checkpoint = {"state_dict": model.state_dict()}
-        torch.save(checkpoint, "checkpoint.pth")
+        checkpoint = {"dropout": dropout, "state_dict": model.state_dict()}
+        torch.save(checkpoint, f"dropout{dropout}_batch{batch_size}.pth")
 
         print(f'Epoch: {e}, time taken: {time.time()-start_time}')
         print(f'Training loss: {train_losses[-1]:.3f}')
@@ -216,19 +217,43 @@ if __name__ == "__main__":
         print(f'Validation accuracy: {valid_accs[-1]:.3f}')
         print(f'')
 
+    # Evaluting test accuracies and losses
+    test_loss = 0
+    test_acc = 0
+    itx = 0
+    model.eval()
+    with torch.no_grad():
+        for batch, target in test_loader:
+            batch, target = batch.to(device), target.to(device)
+            y_test = model(batch)
+            criteria = criterion(y_test, target)
+
+            test_loss += criteria.item()
+
+            prob = torch.exp(y_test)
+            top_p, top_class = prob.topk(1, dim=1)
+            test_acc += accuracy_score(target.cpu(), top_class.cpu().squeeze())
+
+            itx += 1
+
+        test_loss = test_loss / itx
+        test_acc = test_acc / itx * 100
+
     fig, ax = plt.subplots(1,2)
     ax[0].plot(range(epochs), train_losses, '-o', label='Train')
     ax[0].plot(range(epochs), valid_losses, '-o', label='Valid')
     ax[0].set_xlabel('Epochs')
     ax[0].set_ylabel('Losses')
     ax[0].grid()
+    ax[0].set_title(f'Test Loss: {test_loss}')
 
     ax[1].plot(range(epochs), train_accs, '-o', label='Train')
     ax[1].plot(range(epochs), valid_accs, '-o', label='Valid')
     ax[1].legend()
     ax[1].set_xlabel('Epochs')
-    ax[1].set_ylabel('Accuracy')
+    ax[1].set_ylabel('Accuracy (%)')
     ax[1].grid()
+    ax[1].set_title(f'Test Acc: {test_acc}')
 
     fig.set_size_inches(10,6)
-    fig.savefig('summary.pdf', bbox_inches='tight')
+    fig.savefig(f'dropout{dropout}_batch{batch_size}.pdf', bbox_inches='tight')
