@@ -38,3 +38,14 @@ Hence, it is important to know how to load the model class again.
 3. I don't understand why log-softmax + NLLLoss is equivalent softmax + cross entropy loss.
 4. The theory behind bayes error, which is used as 0.15?
 5. In exporting the trace script, how can I export it as a module/function and what does check\_trace mean?
+
+
+# Things that I've clarified
+1. Adding dropout randomly switches off neuron activations, preventing the network
+from overrelying on a single neuron. This is a regularisation technique that prevents
+overfitting.
+2. In this example, it is a multi-class classifcation problem where we only get
+logits of `(N, num_classes)` with takes into account the target of `(N,)` through
+`nn.CrossEntropyLoss()`
+3. They are mathematically equivalent because `CrossEntropyLoss = -log(softmax(z))`
+while `NLLLoss = -log p_c`. 
